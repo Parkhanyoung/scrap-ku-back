@@ -74,8 +74,8 @@ class Course(models.Model):
     """Course data"""
     name = models.CharField(max_length=255)
     courdiv = models.ForeignKey(
-    'Courdiv', on_delete=models.CASCADE, related_name='courses'
-    )
+        'Courdiv', on_delete=models.CASCADE, related_name='courses'
+        )
     rowid = models.CharField(max_length=5)
     campus = models.CharField(max_length=255)
     dept = models.CharField(max_length=255)

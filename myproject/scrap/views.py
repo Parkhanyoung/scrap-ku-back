@@ -3,7 +3,8 @@ from scrap.models import Courdiv, College, ElectivesGroup, Department, Course
 from scrap.scrappers import scrappers
 
 
-def scrap_main(request):
+def main_page(request):
+    """Main page listing scrapped data (except for course data)"""
     courdivs = Courdiv.objects.all()
     colleges_major = College.objects.filter(courdiv__name='전공')
     colleges_basic = College.objects.filter(courdiv__name='학문의기초')
