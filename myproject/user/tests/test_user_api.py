@@ -5,8 +5,11 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from user.serializers import UserSerializer
+
 
 CREATE_USER_URL = reverse('user:user-list')
+ME_URL = reverse('user:user-me')
 
 
 def sample_user(**fields):
@@ -16,7 +19,7 @@ def sample_user(**fields):
 
 
 class UserApiTest(TestCase):
-    """Test User Api"""
+    """Test User Api (public)"""
 
     def setUp(self):
         self.client = APIClient()
@@ -58,3 +61,42 @@ class UserApiTest(TestCase):
         self.assertFalse(
             get_user_model().objects.filter(email=payload['email'])
             )
+
+
+class PrivateUserApiTest(TestCase):
+    """Test User Api (private)"""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            'test@naver.com',
+            'test123'
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_user_authorized(self):
+        """Test retrieving a user succeeds"""
+        res = self.client.get(ME_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        serializer = UserSerializer(self.user)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_not_allowed_method(self):
+        """Test post method is not allowed"""
+        res = self.client.post(ME_URL, {})
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_update_user(self):
+        """Test updating a user succeeds"""
+        payload = {
+            'password': 'changed',
+            'name': 'changed'
+        }
+        res = self.client.patch(ME_URL, payload)
+
+        self.user.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.user.check_password(payload['password']))
+        self.assertEqual(self.user.name, payload['name'])
