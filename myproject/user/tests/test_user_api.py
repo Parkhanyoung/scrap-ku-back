@@ -10,6 +10,7 @@ from user.serializers import UserSerializer
 
 CREATE_USER_URL = reverse('user:user-list')
 ME_URL = reverse('user:user-me')
+TOKEN_URL = reverse('user:user-token')
 
 
 def sample_user(**fields):
@@ -61,6 +62,34 @@ class UserApiTest(TestCase):
         self.assertFalse(
             get_user_model().objects.filter(email=payload['email'])
             )
+
+    def test_create_token_for_user(self):
+        """Test creating a token with valid info succeeds"""
+        payload = {
+            'email': 'test@naver.com',
+            'password': 'test123'
+        }
+        sample_user(**payload)
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_create_token_invalid(self):
+        """Test creating a token with invalid info fails"""
+
+        sample_user(email='test@naver.com', password='test123')
+        payload = {'email': 'test@naver.com', 'password': 'wrong'}
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertNotIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_authentication_is_needed(self):
+        """Test authentication is required for accessing to ME_URL"""
+        res = self.client.get(ME_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class PrivateUserApiTest(TestCase):

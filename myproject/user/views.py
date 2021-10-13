@@ -1,14 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import authentication
-from rest_framework import permissions
+from rest_framework import authentication, permissions
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
 
-from user.serializers import UserSerializer
-# Create your views here.
+from user.serializers import UserSerializer, AuthTokenSerializer
 
 
-class UserCreateAPIView(APIView):
+class UserCreateView(APIView):
     """Create user"""
 
     def post(self, request):
@@ -19,7 +19,7 @@ class UserCreateAPIView(APIView):
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 
-class UserManageAPIView(APIView):
+class UserManageView(APIView):
     """Manage authenticated user[retrieve & update]"""
     authentication_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
@@ -45,3 +45,9 @@ class UserManageAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TokenCreateView(ObtainAuthToken):
+    """Create a token for authenticated user"""
+    serializer_class = AuthTokenSerializer
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
