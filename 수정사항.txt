@@ -1,0 +1,2 @@
+1. college 속성 이름 courdiv > courdivs 로
+2. rowid 필요없으면 빼자
