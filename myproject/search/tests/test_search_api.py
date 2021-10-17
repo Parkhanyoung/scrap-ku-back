@@ -10,7 +10,10 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 
-SEARCH_URL = reverse('search:search-category')
+COURDIV_URL = reverse('search:search-courdiv')
+COLLEGE_URL = reverse('search:search-college')
+GROUP_URL = reverse('search:search-group')
+DEPT_URL = reverse('search:search-dept')
 
 
 def create_courdiv(name):
@@ -69,7 +72,7 @@ class SearchCategoryTest(TestCase):
         create_courdiv('전공')
         courdivs = Courdiv.objects.all()
         serializer = CourdivSerializer(courdivs, many=True)
-        res = self.client.get(SEARCH_URL, {'obj': 'courdiv'})
+        res = self.client.get(COURDIV_URL)
 
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(len(res.data), 1)
@@ -82,12 +85,8 @@ class SearchCategoryTest(TestCase):
         create_college('경영대학', courdiv)
         colleges = College.objects.filter(courdiv__name='전공')
         serializer = CollegeSerializer(colleges, many=True)
-        res_wrong_format = self.client.get(SEARCH_URL, {'obj': 'college'})
-        res = self.client.get(SEARCH_URL, {'obj': 'college', 'courdiv': '전공'})
+        res = self.client.get(COLLEGE_URL, {'courdiv': '전공'})
 
-        self.assertEqual(
-            res_wrong_format.status_code, status.HTTP_400_BAD_REQUEST
-            )
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(len(res.data), 1)
 
@@ -97,7 +96,7 @@ class SearchCategoryTest(TestCase):
         create_group('1학년세미나', courdiv)
         groups = ElectivesGroup.objects.filter(courdiv__name='교양')
         serializer = GroupSerializer(groups, many=True)
-        res = self.client.get(SEARCH_URL, {'obj': 'group'})
+        res = self.client.get(GROUP_URL)
 
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(len(res.data), 1)
@@ -121,8 +120,8 @@ class SearchCategoryTest(TestCase):
             courdiv__name='전공', college__name='사범대학'
             )
         serializer = DeptSerializer(depts, many=True)
-        payload = {'obj': 'dept', 'courdiv': '전공', 'college': '사범대학'}
-        res = self.client.get(SEARCH_URL, payload)
+        payload = {'courdiv': '전공', 'college': '사범대학'}
+        res = self.client.get(DEPT_URL, payload)
 
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(len(res.data), 1)

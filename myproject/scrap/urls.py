@@ -15,5 +15,5 @@ urlpatterns = [
         name='scrap-course-group'
          ),
     path('courdivs/courses/', views.scrap_course_cd, name='scrap-course-cd'),
-    path('danger/delete/all/data/', views.delete_data, name='delete-data')
+    path('delete/all/data/', views.delete_data, name='delete-data')
 ]

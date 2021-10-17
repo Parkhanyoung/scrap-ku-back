@@ -8,8 +8,8 @@ from scrap.serializers import CourdivSerializer, CollegeSerializer, \
                                 GroupSerializer, DeptSerializer
 
 
-class SearchCategoryAPIView(APIView):
-    """Retrieve categories for searching"""
+class SearchBaseAPIView(APIView):
+    """Base APIView for searching categories"""
     authentication_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -31,26 +31,43 @@ class SearchCategoryAPIView(APIView):
 
         return serializer.data
 
+
+class SearchCourdivAPIView(SearchBaseAPIView):
+    """Return a list of courdivs"""
+
     def get(self, request):
-        obj = request.query_params.get('obj')
+        data = self.get_seri_data('courdiv')
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class SearchCollegeAPIView(SearchBaseAPIView):
+    """Return a list of colleges"""
+
+    def get(self, request):
+        courdiv = request.query_params.get('courdiv')
+        if not courdiv:
+            msg = {"QuerystringError": "Courdiv info is not given"}
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        data = self.get_seri_data('college', courdiv)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class SearchGroupAPIView(SearchBaseAPIView):
+    """Return a list of electivesgroup"""
+
+    def get(self, request):
+        data = self.get_seri_data('group')
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class SearchDeptAPIView(SearchBaseAPIView):
+    """Return a list of dept"""
+
+    def get(self, request):
         courdiv = request.query_params.get('courdiv')
         college = request.query_params.get('college')
-
-        if obj == 'college' and not courdiv:
-            msg = {'QuerystringError': '/obj=college&courdiv=XX'}
+        if not (courdiv and college):
+            msg = {"QuerystringError": "courdiv or college are not given"}
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
-        elif obj == 'dept' and not (courdiv and college):
-            msg = {'QuerystringError': '/obj=dept&courdiv=XX&college=XX'}
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
-
-        if obj == 'college':
-            data = self.get_seri_data(obj, courdiv)
-        elif obj == 'dept':
-            data = self.get_seri_data(obj, courdiv, college)
-        elif obj == 'courdiv' or obj == 'group':
-            data = self.get_seri_data(obj)
-        else:
-            msg = {'QuerystringError': '/obj=[courdiv/college/group/dept]'}
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
-
+        data = self.get_seri_data('dept', courdiv, college)
         return Response(data, status=status.HTTP_200_OK)
