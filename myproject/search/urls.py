@@ -25,4 +25,9 @@ urlpatterns = [
         views.SearchDeptAPIView.as_view(),
         name='search-dept'
         ),
+    path(
+        'course/',
+        views.SearchCourseAPIView.as_view(),
+        name='search-course'
+        ),
 ]

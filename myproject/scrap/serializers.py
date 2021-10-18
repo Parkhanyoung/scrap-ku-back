@@ -1,4 +1,4 @@
-from .models import Courdiv, College, ElectivesGroup, Department
+from .models import Courdiv, College, ElectivesGroup, Department, Course
 
 from rest_framework import serializers
 
@@ -36,4 +36,16 @@ class DeptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = ('name', 'code', 'courdiv', 'college', 'id')
+        read_only_fields = ('id',)
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    """Serializer for course objects"""
+
+    class Meta:
+        model = Course
+        fields = ('campus', 'cour_cd', 'cour_cls', 'isu_nm', 'dept', 'name',
+                  'prof_nm', 'credit_time', 'time_room', 'relative_yn',
+                  'lmt_yn', 'exch_cor_yn', 'attend_free_yn',
+                  'no_supervisor_yn', 'flexible_term_yn', 'id')
         read_only_fields = ('id',)
