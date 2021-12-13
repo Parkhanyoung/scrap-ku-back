@@ -13,7 +13,7 @@ class BaseScrapper:
     def __init__(self, attr):
         self.url = 'https://sugang.korea.ac.kr/view'
         self.cookies = {
-            'JSESSIONID': auth_info.jsession_id('2018190220', 'gksdud15!')
+            'JSESSIONID': auth_info.jsession_id('학번', '비밀번호')
         }
         self.headers = {
             'Referer': 'https://sugang.korea.ac.kr/core',

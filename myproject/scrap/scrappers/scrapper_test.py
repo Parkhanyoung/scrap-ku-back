@@ -7,7 +7,7 @@ import auth_info
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 fake = auth_info.fake()
-jsessionID = auth_info.jsession_id('2018190220', 'gksdud15!')
+jsessionID = auth_info.jsession_id('학번', '비밀번호')
 
 cookies = {
     'JSESSIONID': jsessionID

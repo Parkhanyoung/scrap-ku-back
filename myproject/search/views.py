@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import authentication, permissions
 
+from django.shortcuts import get_object_or_404
+
 from scrap.models import Courdiv, College, ElectivesGroup, Department, Course 
 from scrap.serializers import CourdivSerializer, CollegeSerializer, \
                               GroupSerializer, DeptSerializer, CourseSerializer
@@ -10,8 +12,8 @@ from scrap.serializers import CourdivSerializer, CollegeSerializer, \
 
 class SearchBaseAPIView(APIView):
     """Base APIView for searching categories"""
-    authentication_classes = (authentication.TokenAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
+    # authentication_classes = (authentication.TokenAuthentication,)
+    # permission_classes = (permissions.IsAuthenticated,)
 
     def get_seri_data(self, obj, courdiv=None, college=None):
         """Return appropriate serialized data according to obj"""
@@ -75,23 +77,21 @@ class SearchDeptAPIView(SearchBaseAPIView):
 
 class SearchCourseAPIView(APIView):
     """Return a list of courses which meet the conditions"""
-    authentication_classes = (authentication.TokenAuthentication,)
-    permission_classes  = (permissions.IsAuthenticated,)
+    # authentication_classes = (authentication.TokenAuthentication,)
+    # permission_classes  = (permissions.IsAuthenticated,)
 
     def first_filter_default(self, courdiv_nm=None,
                              dept_nm=None, group_nm=None):
         """filters course objects[이수구분] and returns the queryset"""
         if  dept_nm:
-            dept = Department.objects.filter(name=dept_nm).first()
-            courses = dept.courses.all().filter(courdiv__name=courdiv_nm)
+            courses = Course.objects.filter(searched_by_d__name=dept_nm)
+            courses = courses.filter(courdiv__name=courdiv_nm)
             return courses
         elif group_nm:
-            group = ElectivesGroup.objects.filter(name=group_nm).first()
-            courses = group.courses.all()
+            courses = Course.objects.filter(searched_by_g__name=group_nm)
             return courses
         elif courdiv_nm:
-            courdiv = Courdiv.objects.filter(name=courdiv_nm).first()
-            courses = courdiv.courses.all()
+            courses = Course.objects.filter(courdiv__name=courdiv_nm)
             return courses
 
     def first_filter_optional(self, cour_cd=None, cour_nm=None):
@@ -146,3 +146,19 @@ class SearchCourseAPIView(APIView):
             courses, credit, day, prof_nm, cour_cls
             )
         return Response(courses_data, status=status.HTTP_200_OK)
+
+
+class RetrieveCourseAPIView(APIView):
+    """Retrieve a course with primary key"""
+    # authentication_classes = (authentication.TokenAuthentication,)
+    # permission_classes  = (permissions.IsAuthenticated,)
+    def get_object(self, pk):
+        return Course.objects.filter(pk=pk)
+
+    def get(self, request, pk):
+        course = self.get_object(pk)
+        if course:
+            serializer = CourseSerializer(course, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_404_NOT_FOUND)

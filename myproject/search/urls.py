@@ -30,4 +30,9 @@ urlpatterns = [
         views.SearchCourseAPIView.as_view(),
         name='search-course'
         ),
+    path(
+        'course/<int:pk>/',
+        views.RetrieveCourseAPIView.as_view(),
+        name='retrieve-course'
+        ),
 ]

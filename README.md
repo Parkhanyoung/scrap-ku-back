@@ -1,2 +1,2 @@
 # scrap_ku
-practice for 수알 프로젝트
+고려대 수강신청 사이트 데이터 스크래퍼 및 수강신청 도우미(KU Clock) 백엔드
